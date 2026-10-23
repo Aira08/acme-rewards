@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
+  appId: 'com.sddteam.acmerewards',
   appName: 'acme-rewards',
   webDir: 'www'
 };
