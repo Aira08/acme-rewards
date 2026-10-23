@@ -1,0 +1,125 @@
+.bg {
+    --background: #f2f2f7;
+}
+
+.section {
+    margin: 20px 20px 6px; 
+    font-size: 14px; 
+    color: #6b6b70; 
+    letter-spacing: .3px;
+}
+
+.card {
+    background: #fff; 
+    border-radius: 14px; 
+    margin: 0 16px; 
+    padding: 16px;
+}
+
+.card.menu {
+    margin: 0 16px;
+    padding: 0;
+    border-radius: 14px;
+
+    ion-item {
+        --background: #fff;
+        --border-color: #eee;
+        --color: #6b6b70;
+        font-size: 14px;
+    }
+}
+
+.row {
+    display: flex;
+    gap: 12px;
+}
+
+.logo { 
+    width: 50px; 
+    height: 50px; 
+    padding: 6px;
+    border-radius: 10px; 
+    border: 1px solid #e5e5ea;
+}
+
+.title {
+    font-size: 18px; 
+    font-weight: bold; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
+}
+
+.sub {
+    margin: 8px 0; 
+    color: #3c3c43; 
+    font-size: 14px; 
+    display: flex; 
+    align-items: center; 
+    gap: 6px;
+}
+
+.sub.strong {
+    font-weight: bold;
+}
+
+.hint { 
+    margin: 8px 0; 
+    color: #6b6b70; 
+    font-size: 14px;
+}
+
+.scope {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #3c3c43;
+    font-size: 14px;
+
+    ion-icon {
+        color: #1f6b4a;
+    }
+}
+
+.badge {
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-weight: 500;
+}
+
+.badge.ok {
+    background: #e3f3ea;
+    color: #1f6b4a;
+}
+
+.badge.muted {
+    background: #ececf0;
+    color: #555;
+}
+
+ion-button {
+    text-transform: none;
+    font-size: 14px;
+}
+
+.primary {
+    --background: #4338ca;
+    --border-radius: 12px;
+    --margin-top: 14px;
+    color:#e3f3ea;
+}
+
+.outline {
+    --border-color: #2f5d62;
+    --color: #2f5d62;
+    --border-radius: 3px;
+    --margin-top: 12px;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #eee;
+    margin: 12px 0 8px;
+}

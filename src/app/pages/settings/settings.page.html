@@ -1,0 +1,129 @@
+<ion-header [translucent]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Settings</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-toolbar>
+    <ion-title size="large">Settings</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="bg">
+  <!-- <ion-segment (ionChange)="pc.devSet($any($event.detail.value))" value="p1">
+    @for (s of ['p1', 'p2', 'p3', 'p4', 'p5', 'p6']; track s) {
+      <ion-segment-button [value]="s">
+        <ion-label> {{ s.toUpperCase() }} </ion-label>
+      </ion-segment-button>
+    }
+  </ion-segment> -->
+
+  <p class="section">LINKED ACCOUNTS</p>
+  <div class="card">
+    <div class="row">
+      <img src="/assets/icon/LogoB.png" class="logo" alt="" />
+      <div class="info">
+        <div class="title">
+          AsensoPay
+          @if (pc.status() === 'connected') {
+          <span class="badge ok">
+            <ion-icon name="checkmark"></ion-icon>
+            Connected
+          </span>
+          }
+          @if (pc.status() === 'not_connected' || pc.status() === 'denied') {
+          <span class="badge muted">
+            Not Connected
+          </span>
+          }
+        </div>
+
+        @if (!pc.installed()) {
+        <div class="sub">
+          AsensoPay isn't on this phone yet. Get the app to connect it.
+        </div>
+        } @else {
+        @switch (pc.status()) {
+        @case ('waiting') {
+        <p class="sub strong">
+          <ion-spinner name="crescent" color="tertiary"></ion-spinner>
+          Waiting for AsensoPay…
+        </p>
+        <p class="hint">
+          Finish in the AsensoPay app. This request expires in 10 minutes.
+        </p>
+        }
+        @case ('failed') {
+        <p class="sub">
+          <ion-icon name="alert-circle-outline" color="dark"></ion-icon>
+          Couldn't connect. Try again.
+        </p>
+        }
+        @case ('denied')
+        @case ('not_connected') {
+        <p class="sub">
+          Pay and check your AsensoPay account from Acme Rewards.
+        </p>
+        }
+        }
+        }
+      </div>
+    </div>
+
+    @if (!pc.installed()) {
+    <ion-button expand="block" class="primary">
+      Get AsensoPay
+      <ion-icon slot="end" name="open-outline"></ion-icon>
+    </ion-button>
+    } @else {
+    @switch (pc.status()) {
+    @case('waiting') {
+    <ion-button expand="block" fill="outline" color="medium" (click)="pc.cancel()">
+      Cancel
+    </ion-button>
+    }
+    @case('failed') {
+    <ion-button expand="block" class="primary" (click)="pc.connect()">
+      Try Again
+    </ion-button>
+    }
+    @case('denied')
+    @case('not_connected') {
+    <ion-button expand="block" class="primary" (click)="pc.connect()">
+      Connect AsensoPay
+    </ion-button>
+    }
+    @case('connected') {
+    <hr />
+    <div class="hint">Acme Rewards can:</div>
+    @for (s of pc.connection()?.scopes ?? []; track s) {
+    <p class="scope">
+      <ion-icon name="checkmark"></ion-icon>
+      {{ labels[s] }}
+    </p>
+    }
+    <ion-button expand="block" fill="outline" color="medium" (click)="pc.openRoute('/balance')">
+      Open in AsensoPay
+    </ion-button>
+    <ion-button expand="block" fill="clear" color="danger" (click)="pc.disconnect()">
+      Disconnect
+    </ion-button>
+    }
+    }
+    }
+
+  </div>
+
+  <p class="section">GENERAL</p>
+  <ion-list inset class="card menu">
+    <ion-item detail button>
+      <ion-label>Notifications</ion-label>
+    </ion-item>
+
+    <ion-item detail button>
+      <ion-label>Language</ion-label>
+    </ion-item>
+  </ion-list>
+
+</ion-content>

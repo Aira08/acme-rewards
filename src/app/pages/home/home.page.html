@@ -1,0 +1,58 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Home</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="bg">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">home</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="brand">
+    <div class="mark">A</div>
+    <h1>Acme Rewards</h1>
+  </div>
+
+  <div class="points">
+    <p class="label">Your Points</p>
+    <p class="value">{{ points | number }}</p>
+    <p class="tier">{{ tier }}</p>
+  </div>
+
+  <div class="card">
+    <div class="bill">
+      <div>
+        <p class="bill-title">{{ bill.title }}</p>
+        <p class="due">Due {{ bill.due | date: 'MMM d, y' }}</p>
+      </div>
+      <p class="amount">₱{{ bill.amount | number: '1.2-2'}}</p>
+    </div>
+
+    @if (pc.hasScope('pay:create')) {
+    <ion-button expand="block" fill="outline" class="asenso" (click)="pc.openRoute('/pay')">
+      <img src="/assets/icon/LogoB.png" alt="" class="btn-logo" />
+      Pay with AsensoPay
+    </ion-button>
+    <p class="hint ion-text-center">AsensoPay will ask for your fingerprint or PIN.</p>
+    }
+  </div>
+
+  @if (pc.status() === 'connected') {
+  <div class="card">
+    <div class="row">
+      <img src="/assets/icon/LogoB.png" class="logo" alt="" />
+      <div>
+        <p class="bill-title">AsensoPay</p>
+        <p class="hint">Connected</p>
+      </div>
+    </div>
+    <ion-button expand="block" fill="outline" color="medium" class="view" (click)="pc.openRoute('/balance')">
+      View in AsensoPay
+    </ion-button>
+  </div>
+  }
+
+</ion-content>
