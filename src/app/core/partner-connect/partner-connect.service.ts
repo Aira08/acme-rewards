@@ -55,7 +55,7 @@ import { PC_CONFIG } from "./partner-connect.config";
 import { newState, signedUrl } from './signing';
 import { Connection, ConnectionState, Pending, Route, ROUTE_SCOPE, Scope } from "./partner-connect.types";
 
-const PENDING_MS = 10 * 1000; // TEMP: 10s expiry test, restore to 10 * 60 * 1000
+const PENDING_MS = 10 * 60 * 1000;
 const K_PENDING = 'pc_pending';
 const K_CONN = 'pc_connection';
 
@@ -67,32 +67,29 @@ export class PartnerConnectService {
     status = signal<ConnectionState>('not_connected');
     connection = signal<Connection | null>(null);
     installed = signal(true);
+    private expiryTimer?: ReturnType<typeof setTimeout>;
 
     async init() {
-        try {
-            const { value } = await AppLauncher.canOpenUrl({ 
-                url: "${PC_CONFIG.scheme}://"
-            });
-            this.installed.set(value);
-        } catch {
-            this.installed.set(true);
-        }
+        await this.refreshInstalled();
 
         const conn = await this.read<Connection>(K_CONN);
+        const pending = await this.read<Pending>(K_PENDING);
         if (conn) {
             this.connection.set(conn);
             this.status.set('connected');
-        } else if (await this.read<Pending>(K_PENDING)) {
+        } else if (pending) {
             this.status.set('waiting');
+            this.scheduleExpiry(pending.createdAt);
             await this.checkExpiry();
         }
 
         App.addListener('appUrlOpen', ({ url }) =>
             this.handleCallback(url)
         );
-        App.addListener('resume', () =>
-            this.checkExpiry()
-        );
+        App.addListener('resume', async () => {
+            await this.refreshInstalled();
+            await this.checkExpiry();
+        });
 
         const launch = await App.getLaunchUrl();
         if (launch?.url) await this.handleCallback(launch.url);
@@ -108,6 +105,7 @@ export class PartnerConnectService {
         };
         await this.write(K_PENDING, pending);
         this.status.set('waiting');
+        this.scheduleExpiry(pending.createdAt);
 
         const url = signedUrl(PC_CONFIG.scheme, 'connect', PC_CONFIG, {
             state: pending.state,
@@ -131,9 +129,13 @@ export class PartnerConnectService {
             return;
 
         const pending = await this.read<Pending>(K_PENDING);
-        await Preferences.remove({ key: K_PENDING});
+        if (!pending && this.status() !== 'waiting')
+            return;
 
-        if (!pending || pending.state !== state || Date.now() - pending.createdAt > PENDING_MS) {
+        await Preferences.remove({ key: K_PENDING});
+        clearTimeout(this.expiryTimer);
+
+        if (!pending || pending.state !== state || Date.now() - pending.createdAt >= PENDING_MS) {
             return this.status.set('failed');
         }
         if (error === 'access_denied') 
@@ -167,7 +169,12 @@ export class PartnerConnectService {
         await AppLauncher.openUrl({ url });
     }
 
+    async openStore() {
+        await AppLauncher.openUrl({ url: PC_CONFIG.storeUrl });
+    }
+
     async cancel() {
+        clearTimeout(this.expiryTimer);
         await Preferences.remove({ key: K_PENDING });
         this.status.set('not_connected');
     }
@@ -179,10 +186,30 @@ export class PartnerConnectService {
     async checkExpiry() {
         const p = await this.read<Pending>(K_PENDING);
 
-        if (p && Date.now() - p.createdAt > PENDING_MS) {
+        if (p && Date.now() - p.createdAt >= PENDING_MS) {
             await Preferences.remove({ key: K_PENDING });
             this.status.set('failed');
         }
+    }
+
+    private async refreshInstalled() {
+        try {
+            const { value } = await AppLauncher.canOpenUrl({
+                url: `${PC_CONFIG.scheme}://cb`
+            });
+            this.installed.set(value);
+        } catch {
+            this.installed.set(true);
+        }
+    }
+
+    // Foreground timer; on resume, checkExpiry() covers time spent in the background.
+    private scheduleExpiry(createdAt: number) {
+        clearTimeout(this.expiryTimer);
+        this.expiryTimer = setTimeout(
+            () => this.checkExpiry(),
+            Math.max(0, createdAt + PENDING_MS - Date.now())
+        );
     }
 
     private async clearConnection() {
