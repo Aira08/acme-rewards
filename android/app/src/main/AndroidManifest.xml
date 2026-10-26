@@ -22,6 +22,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- Partner Connect callback; must match PC_CONFIG.redirect_uri -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="acmerewards" android:host="cb" />
+            </intent-filter>
+
         </activity>
 
         <provider
@@ -34,6 +42,14 @@
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
     </application>
+
+    <!-- Lets AppLauncher.canOpenUrl see AsensoPay (Android 11+ package visibility) -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="asensopay" />
+        </intent>
+    </queries>
 
     <!-- Permissions -->
 

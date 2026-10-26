@@ -7,6 +7,7 @@ export const PC_CONFIG = {
     cert: 'PASTE_CERT_HERE',                // issued cert
     secretKey: 'PASTE_SECRET_KEY_HERE', 
     redirect_uri: 'acmerewards://cb',       // match the cert exactly
+    storeUrl: 'https://play.google.com/store/apps/details?id=PASTE_ASENSOPAY_PACKAGE',
     scopes: [
         'balance:read',
         'collections:read',

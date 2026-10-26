@@ -72,7 +72,7 @@
     </div>
 
     @if (!pc.installed()) {
-    <ion-button expand="block" class="primary">
+    <ion-button expand="block" class="primary" (click)="pc.openStore()">
       Get AsensoPay
       <ion-icon slot="end" name="open-outline"></ion-icon>
     </ion-button>
