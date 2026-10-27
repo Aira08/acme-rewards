@@ -53,7 +53,7 @@
     </application>
 
     <!-- Lets AppLauncher.canOpenUrl see AsensoPay (Android 11+ package visibility).
-         The host is required: AsensoPay's filter only accepts connect/open, so a scheme-only
+         The host is required: AsensoPay's filter only accepts connect/open/disconnect, so a scheme-only
          entry matches nothing and AsensoPay stays invisible ("Get AsensoPay" while installed). -->
     <queries>
         <intent>

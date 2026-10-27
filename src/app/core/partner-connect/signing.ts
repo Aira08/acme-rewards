@@ -29,7 +29,7 @@ export function newState(): string {
 
 export function signedUrl(
   scheme: string,
-  target: 'connect' | 'open',
+  target: 'connect' | 'open' | 'disconnect',
   cfg: { cert: string; secretKey: string },
   extra: Record<string, string>,
 ): string {
