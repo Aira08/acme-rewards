@@ -15,7 +15,7 @@ import {
   IonItem, 
   IonList
  } from '@ionic/angular';
-import { PartnerConnectService } from '../../core/partner-connect/partner-connect.service';
+import { PartnerConnectService, PENDING_MS } from '../../core/partner-connect/partner-connect.service';
 import { SCOPE_LABELS } from '../../core/partner-connect/partner-connect.types';
 import { addIcons } from 'ionicons';
 import { checkmark, alertCircleOutline, openOutline } from 'ionicons/icons';
@@ -44,6 +44,9 @@ import { checkmark, alertCircleOutline, openOutline } from 'ionicons/icons';
 export class SettingsPage {
   pc = inject(PartnerConnectService);
   labels = SCOPE_LABELS;
+  expiresIn = PENDING_MS < 60_000
+    ? `${PENDING_MS / 1000} seconds`
+    : `${PENDING_MS / 60_000} minute${PENDING_MS === 60_000 ? '' : 's'}`;
 
   constructor() {
     addIcons({ checkmark, alertCircleOutline, openOutline });

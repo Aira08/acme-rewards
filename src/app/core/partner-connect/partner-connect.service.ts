@@ -55,7 +55,7 @@ import { PC_CONFIG } from "./partner-connect.config";
 import { newState, signedUrl } from './signing';
 import { Connection, ConnectionState, Pending, Route, ROUTE_SCOPE, Scope } from "./partner-connect.types";
 
-const PENDING_MS = 10 * 60 * 1000;
+export const PENDING_MS = 10 * 60 * 1000;
 const K_PENDING = 'pc_pending';
 const K_CONN = 'pc_connection';
 
@@ -107,10 +107,12 @@ export class PartnerConnectService {
         this.status.set('waiting');
         this.scheduleExpiry(pending.createdAt);
 
+        // exp tells AsensoPay when we stop waiting, so it closes consent before then (rounded down).
         const url = signedUrl(PC_CONFIG.scheme, 'connect', PC_CONFIG, {
             state: pending.state,
             redirect_uri: PC_CONFIG.redirect_uri,
             scopes: PC_CONFIG.scopes.join(','),
+            exp: String(Math.floor((pending.createdAt + PENDING_MS) / 1000)),
         });
         await AppLauncher.openUrl({ url });
     }
