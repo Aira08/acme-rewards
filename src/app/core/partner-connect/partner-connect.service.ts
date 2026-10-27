@@ -195,7 +195,7 @@ export class PartnerConnectService {
     private async refreshInstalled() {
         try {
             const { value } = await AppLauncher.canOpenUrl({
-                url: `${PC_CONFIG.scheme}://cb`
+                url: `${PC_CONFIG.scheme}://connect`
             });
             this.installed.set(value);
         } catch {
