@@ -26,7 +26,7 @@
 //         this.installed.set(s !== 'p6');
 //         this.wasDenied.set(s === 'p5');
 //         this.connection.set(s === 'p3' 
-//             ? { cid: '12345', scopes: ['balance:read', 'collections:read', 'pay:create'], connectedAt: Date.now() } 
+//             ? { cid: '12345', scopes: ['balance:read', 'collections:read', 'payments:create'], connectedAt: Date.now() } 
 //             : null
 //         );
 //         this.status.set(({

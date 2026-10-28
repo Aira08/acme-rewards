@@ -10,6 +10,7 @@ export const PC_CONFIG = {
     storeUrl: 'https://play.google.com/store/apps/details?id=PASTE_ASENSOPAY_PACKAGE',
     scopes: [
         'balance:read',
-        'collections:read'
+        'collections:read',
+        'payments:create'
     ] as Scope[],
 };

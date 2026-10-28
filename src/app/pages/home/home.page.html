@@ -31,13 +31,13 @@
       <p class="amount">₱{{ bill.amount | number: '1.2-2'}}</p>
     </div>
 
-    <!-- @if (pc.hasScope('payments:create')) {
+    @if (pc.hasScope('payments:create')) {
     <ion-button expand="block" fill="outline" class="asenso" (click)="pc.openRoute('/pay')">
       <img src="/assets/icon/LogoB.png" alt="" class="btn-logo" />
       Pay with AsensoPay
     </ion-button>
     <p class="hint ion-text-center">AsensoPay will ask for your fingerprint or PIN.</p>
-    } -->
+    }
   </div>
 
   @if (pc.status() === 'connected') {
