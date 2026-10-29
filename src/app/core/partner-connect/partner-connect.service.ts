@@ -53,11 +53,12 @@ import { AppLauncher } from '@capacitor/app-launcher';
 import { Preferences } from '@capacitor/preferences';
 import { PC_CONFIG } from "./partner-connect.config";
 import { newState, signedUrl } from './signing';
-import { Connection, ConnectionState, Pending, Route, ROUTE_SCOPE, Scope } from "./partner-connect.types";
+import { Connection, ConnectionState, Payment, Pending, Route, ROUTE_SCOPE, Scope } from "./partner-connect.types";
 
 export const PENDING_MS = 10 * 60 * 1000;
 const K_PENDING = 'pc_pending';
 const K_CONN = 'pc_connection';
+const K_PAID = 'pc_paid';
 
 @Injectable({
     providedIn: 'root'
@@ -66,6 +67,8 @@ const K_CONN = 'pc_connection';
 export class PartnerConnectService {
     status = signal<ConnectionState>('not_connected');
     connection = signal<Connection | null>(null);
+    /** The bill was paid with AsensoPay. */
+    paid = signal<Payment | null>(null);
     installed = signal(true);
     private expiryTimer?: ReturnType<typeof setTimeout>;
 
@@ -76,6 +79,7 @@ export class PartnerConnectService {
         const pending = await this.read<Pending>(K_PENDING);
         if (conn) {
             this.connection.set(conn);
+            this.paid.set(await this.read<Payment>(K_PAID));
             this.status.set('connected');
         } else if (pending) {
             this.status.set('waiting');
@@ -125,9 +129,12 @@ export class PartnerConnectService {
         const state = q.get('state');
         const error = q.get('error');
 
-        if (error === 'not_connected' && !state) 
+        if (error === 'not_connected' && !state)
             return this.clearConnection();
-        if (!state) 
+        // Result of our /pay link. Unsigned like every callback: fine for the sample, not for real money.
+        if (q.get('payment') === 'paid' && !state)
+            return this.markPaid(q.get('ref') ?? '');
+        if (!state)
             return;
 
         const pending = await this.read<Pending>(K_PENDING);
@@ -230,9 +237,21 @@ export class PartnerConnectService {
         );
     }
 
+    private async markPaid(ref: string) {
+        if (this.status() !== 'connected')
+            return;
+
+        const payment: Payment = { ref, paidAt: Date.now() };
+        await this.write(K_PAID, payment);
+        this.paid.set(payment);
+    }
+
+    // The payment goes with the connection, so the demo can be run again after a disconnect.
     private async clearConnection() {
         await Preferences.remove({ key: K_CONN });
+        await Preferences.remove({ key: K_PAID });
         this.connection.set(null);
+        this.paid.set(null);
         this.status.set('not_connected');
     }
 

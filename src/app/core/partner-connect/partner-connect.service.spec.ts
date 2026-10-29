@@ -106,4 +106,47 @@ describe('PartnerConnectService', () => {
     await pc.handleCallback(`${PC_CONFIG.redirect_uri}?state=${state}&cid=c1&scopes=balance:read`);
     expect(pc.status()).toBe('not_connected');
   });
+
+  describe('paying with AsensoPay', () => {
+    const connected = async () => {
+      await pc.connect();
+      const { state } = (await pending())!;
+      await pc.handleCallback(`${PC_CONFIG.redirect_uri}?state=${state}&cid=c1&scopes=payments:create`);
+    };
+
+    it('marks the bill paid when AsensoPay returns a payment', async () => {
+      await connected();
+      await pc.handleCallback(`${PC_CONFIG.redirect_uri}?payment=paid&ref=R1`);
+      expect(pc.paid()?.ref).toBe('R1');
+      expect(pc.status()).toBe('connected');
+    });
+
+    it('leaves the bill unpaid when the payment was cancelled', async () => {
+      await connected();
+      await pc.handleCallback(`${PC_CONFIG.redirect_uri}?payment=cancelled`);
+      expect(pc.paid()).toBeNull();
+    });
+
+    it('ignores a payment when not connected', async () => {
+      await pc.handleCallback(`${PC_CONFIG.redirect_uri}?payment=paid&ref=R1`);
+      expect(pc.paid()).toBeNull();
+    });
+
+    it('forgets the payment on disconnect, so the bill can be paid again', async () => {
+      await connected();
+      await pc.handleCallback(`${PC_CONFIG.redirect_uri}?payment=paid&ref=R1`);
+
+      await pc.disconnect();
+      expect(pc.paid()).toBeNull();
+      expect(await Preferences.get({ key: 'pc_paid' })).toEqual({ value: null });
+    });
+
+    it('forgets the payment when AsensoPay says it was disconnected there', async () => {
+      await connected();
+      await pc.handleCallback(`${PC_CONFIG.redirect_uri}?payment=paid&ref=R1`);
+
+      await pc.handleCallback(`${PC_CONFIG.redirect_uri}?error=not_connected`);
+      expect(pc.paid()).toBeNull();
+    });
+  });
 });

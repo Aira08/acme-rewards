@@ -26,12 +26,21 @@
     <div class="bill">
       <div>
         <p class="bill-title">{{ bill.title }}</p>
+        @if (pc.paid(); as paid) {
+        <p class="due">Paid {{ paid.paidAt | date: 'MMM d, y, h:mm a' }}</p>
+        } @else {
         <p class="due">Due {{ bill.due | date: 'MMM d, y' }}</p>
+        }
       </div>
       <p class="amount">₱{{ bill.amount | number: '1.2-2'}}</p>
     </div>
 
-    @if (pc.hasScope('payments:create')) {
+    @if (pc.paid(); as paid) {
+    <div class="paid">
+      <span>Paid with AsensoPay</span>
+      <span class="ref">Ref {{ paid.ref }}</span>
+    </div>
+    } @else if (pc.hasScope('payments:create')) {
     <ion-button expand="block" fill="outline" class="asenso" (click)="pc.openRoute('/pay')">
       <img src="/assets/icon/LogoB.png" alt="" class="btn-logo" />
       Pay with AsensoPay
