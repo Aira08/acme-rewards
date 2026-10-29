@@ -11,6 +11,6 @@ export const PC_CONFIG = {
     scopes: [
         'balance:read',
         'collections:read',
-        'pay:create'
+        'payments:create'
     ] as Scope[],
 };

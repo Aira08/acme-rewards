@@ -22,12 +22,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- Partner Connect callback; must match PC_CONFIG.redirect_uri -->
+            <!-- Partner Connect callback; PC_CONFIG.redirect_uri must be one of these -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="acmerewards" android:host="cb" />
+            </intent-filter>
+
+            <!-- https callbacks only reach the app once the domain is verified (App Links) or the
+                 user enables it under App info > Set as default; otherwise Android opens the browser. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="example.com" android:path="/cb" />
             </intent-filter>
 
         </activity>
@@ -43,11 +52,13 @@
         </provider>
     </application>
 
-    <!-- Lets AppLauncher.canOpenUrl see AsensoPay (Android 11+ package visibility) -->
+    <!-- Lets AppLauncher.canOpenUrl see AsensoPay (Android 11+ package visibility).
+         The host is required: AsensoPay's filter only accepts connect/open/disconnect, so a scheme-only
+         entry matches nothing and AsensoPay stays invisible ("Get AsensoPay" while installed). -->
     <queries>
         <intent>
             <action android:name="android.intent.action.VIEW" />
-            <data android:scheme="asensopay" />
+            <data android:scheme="asensopay" android:host="connect" />
         </intent>
     </queries>
 

@@ -1,4 +1,4 @@
-package com.sddteam.acmerewards;
+package com.acme.rewards;
 
 import com.getcapacitor.BridgeActivity;
 

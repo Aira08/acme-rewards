@@ -26,7 +26,7 @@
 //         this.installed.set(s !== 'p6');
 //         this.wasDenied.set(s === 'p5');
 //         this.connection.set(s === 'p3' 
-//             ? { cid: '12345', scopes: ['balance:read', 'collections:read', 'pay:create'], connectedAt: Date.now() } 
+//             ? { cid: '12345', scopes: ['balance:read', 'collections:read', 'payments:create'], connectedAt: Date.now() } 
 //             : null
 //         );
 //         this.status.set(({
@@ -55,7 +55,7 @@ import { PC_CONFIG } from "./partner-connect.config";
 import { newState, signedUrl } from './signing';
 import { Connection, ConnectionState, Pending, Route, ROUTE_SCOPE, Scope } from "./partner-connect.types";
 
-const PENDING_MS = 10 * 60 * 1000;
+export const PENDING_MS = 10 * 60 * 1000;
 const K_PENDING = 'pc_pending';
 const K_CONN = 'pc_connection';
 
@@ -107,10 +107,12 @@ export class PartnerConnectService {
         this.status.set('waiting');
         this.scheduleExpiry(pending.createdAt);
 
+        // exp tells AsensoPay when we stop waiting, so it closes consent before then (rounded down).
         const url = signedUrl(PC_CONFIG.scheme, 'connect', PC_CONFIG, {
             state: pending.state,
             redirect_uri: PC_CONFIG.redirect_uri,
             scopes: PC_CONFIG.scopes.join(','),
+            exp: String(Math.floor((pending.createdAt + PENDING_MS) / 1000)),
         });
         await AppLauncher.openUrl({ url });
     }
@@ -173,14 +175,18 @@ export class PartnerConnectService {
         await AppLauncher.openUrl({ url: PC_CONFIG.storeUrl });
     }
 
+    // AsensoPay may still show its consent screen; the disconnect link closes it.
     async cancel() {
         clearTimeout(this.expiryTimer);
         await Preferences.remove({ key: K_PENDING });
         this.status.set('not_connected');
+        await this.sendDisconnect();
     }
 
+    // Clear locally first so we are disconnected even if AsensoPay rejects the link or is gone.
     async disconnect() {
         await this.clearConnection();
+        await this.sendDisconnect();
     }
 
     async checkExpiry() {
@@ -192,10 +198,22 @@ export class PartnerConnectService {
         }
     }
 
+    // AsensoPay drops our connection and any consent screen still waiting for us,
+    // then hands back with error=not_connected.
+    private async sendDisconnect() {
+        if (!this.installed())
+            return;
+
+        const url = signedUrl(PC_CONFIG.scheme, 'disconnect', PC_CONFIG, {
+            redirect_uri: PC_CONFIG.redirect_uri,
+        });
+        await AppLauncher.openUrl({ url });
+    }
+
     private async refreshInstalled() {
         try {
             const { value } = await AppLauncher.canOpenUrl({
-                url: `${PC_CONFIG.scheme}://cb`
+                url: `${PC_CONFIG.scheme}://connect`
             });
             this.installed.set(value);
         } catch {
