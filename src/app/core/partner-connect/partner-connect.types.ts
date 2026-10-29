@@ -11,6 +11,10 @@ export interface Pending {
     state: string;
     createdAt: number;
 }
+export interface Payment {
+    ref: string;
+    paidAt: number;
+}
 
 export const ROUTE_SCOPE: Record<Route, Scope> = {
     '/balance': 'balance:read',

@@ -117,6 +117,25 @@ ion-button {
     font-weight: 600;
 }
 
+.paid {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #e8f5ee;
+    color: #1e7a4c;
+    font-size: 14px;
+    font-weight: 600;
+
+    .ref {
+        font-weight: 400;
+        color: #4b6b5a;
+    }
+}
+
 .btn-logo {
     width: 22px;
     height: 22px;
